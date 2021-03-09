@@ -1,7 +1,9 @@
 <ons-page id="completedTasksPage">
   <ons-list id="completed-list">
   </ons-list>
-  <div>
-    <v-ons-button>Tap me</v-ons-button>
-  </div>
+
+  <div class="tasksActions">
+    <ons-button onclick="myApp.services.tasks.removeAll()" class="deleteAction" background="#85c1e9">Delete all</ons-button>
+  </div>  
+  
 </ons-page>
