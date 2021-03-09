@@ -32,7 +32,15 @@ myApp.services = {
       // Add 'completion' functionality when the checkbox changes.
       taskItem.data.onCheckboxChange = function(event) {
         myApp.services.animators.swipe(taskItem, function() {
-          var listId = (taskItem.parentElement.id === 'pending-list' && event.target.checked) ? '#completed-list' : '#pending-list';
+          var listid;
+          if(taskItem.parentElement.id  === 'pending-list' && event.target.checked){
+            listId = '#inprogress-list'
+            event.target.checked = !event.target.checked
+          }else if(taskItem.parentElement.id === 'inprogress-list' && event.target.checked){
+            listId = '#completed-list'
+          } else {
+            listID = '#pending-list'
+          }
           document.querySelector(listId).appendChild(taskItem);
         });
       };
@@ -196,7 +204,8 @@ myApp.services = {
 
     // Swipe animation for task completion.
     swipe: function(listItem, callback) {
-      var animation = (listItem.parentElement.id === 'pending-list') ? 'animation-swipe-right' : 'animation-swipe-left';
+    
+      var animation = (listItem.parentElement.id === 'pending-list' || 'inprogress-list') ? 'animation-swipe-right' : 'animation-swipe-left';
       listItem.classList.add('hide-children');
       listItem.classList.add(animation);
 
