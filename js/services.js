@@ -1,14 +1,24 @@
 /***********************************************************************************
  * App Services. This contains the logic of the application organised in modules/objects. *
  ***********************************************************************************/
+let fixtures = []
 
 myApp.services = {
+
+  localLoad: function() {
+    if(localStorage.getItem('tasks') != null) {
+      let serialized_tasks = localStorage.getItem('tasks')
+      tasks_content = JSON.parse(serialized_tasks)
+      tasks_content.forEach(task => {
+        myApp.services.tasks.create(task)
+      });
+    }
+  }, 
 
   /////////////////
   // Task Service //
   /////////////////
   tasks: {
-
     // Creates a new task and attaches it to the pending task list.
     create: function(data) {
       // Task item template.
@@ -28,7 +38,7 @@ myApp.services = {
 
       // Store data within the element.
       taskItem.data = data;
-
+      
       // Add 'completion' functionality when the checkbox changes.
       taskItem.data.onCheckboxChange = function(event) {
         myApp.services.animators.swipe(taskItem, function() {
@@ -76,6 +86,9 @@ myApp.services = {
       // Insert urgent tasks at the top and non urgent tasks at the bottom.
       var pendingList = document.querySelector('#pending-list');
       pendingList.insertBefore(taskItem, taskItem.data.urgent ? pendingList.firstChild : null);
+      fixtures.push(data)
+      let serialized_tasks = JSON.stringify(fixtures)
+      localStorage.setItem("tasks", serialized_tasks)
     },
 
     // Modifies the inner data and current view of an existing task.
@@ -99,7 +112,12 @@ myApp.services = {
       taskItem.classList[data.highlight ? 'add' : 'remove']('highlight');
 
       // Store the new data within the element.
+      oldTask = taskItem.data
       taskItem.data = data;
+      let indexToUpdate = fixtures.findIndex(task => oldTask === task )
+      fixtures[indexToUpdate] = taskItem.data
+      let serialized_tasks = JSON.stringify(fixtures)
+      localStorage.setItem("tasks", serialized_tasks)
     },
 
     // Deletes a task item and its listeners.
@@ -112,6 +130,10 @@ myApp.services = {
         // Check if the category has no items and remove it in that case.
         myApp.services.categories.updateRemove(taskItem.data.category);
       });
+      let indexToRemove = fixtures.findIndex(task => taskItem.data === task )
+      fixtures.splice(indexToRemove, 1)
+      let serialized_tasks = JSON.stringify(fixtures)
+      localStorage.setItem("tasks", serialized_tasks)
     }
   },
 
@@ -158,7 +180,7 @@ myApp.services = {
     updateRemove: function(categoryLabel) {
       var categoryId = myApp.services.categories.parseId(categoryLabel);
       var categoryItem = document.querySelector('#tabbarPage ons-list-item[category="' + categoryId + '"]');
-
+      
       if (!categoryItem) {
         // If there are no tasks under this category, remove it.
         myApp.services.categories.remove(document.querySelector('#custom-category-list ons-list-item[category-id="' + categoryId + '"]'));
@@ -226,66 +248,5 @@ myApp.services = {
       }, 750);
     }
   },
-
-  ////////////////////////
-  // Initial Data Service //
-  ////////////////////////
-  fixtures: [
-    {
-      title: 'Download OnsenUI',
-      category: 'Programming',
-      description: 'Some description.',
-      highlight: false,
-      urgent: false
-    },
-    {
-      title: 'Install Monaca CLI',
-      category: 'Programming',
-      description: 'Some description.',
-      highlight: false,
-      urgent: false
-    },
-    {
-      title: 'Star Onsen UI repo on Github',
-      category: 'Super important',
-      description: 'Some description.',
-      highlight: false,
-      urgent: false
-    },
-    {
-      title: 'Register in the community forum',
-      category: 'Super important',
-      description: 'Some description.',
-      highlight: false,
-      urgent: false
-    },
-    {
-      title: 'Send donations to Fran and Andreas',
-      category: 'Super important',
-      description: 'Some description.',
-      highlight: false,
-      urgent: false
-    },
-    {
-      title: 'Profit',
-      category: '',
-      description: 'Some description.',
-      highlight: false,
-      urgent: false
-    },
-    {
-      title: 'Visit Japan',
-      category: 'Travels',
-      description: 'Some description.',
-      highlight: false,
-      urgent: false
-    },
-    {
-      title: 'Enjoy an Onsen with Onsen UI team',
-      category: 'Personal',
-      description: 'Some description.',
-      highlight: false,
-      urgent: false
-    }
-  ]
+  
 };
