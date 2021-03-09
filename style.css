@@ -26,6 +26,19 @@ ons-splitter-side[side="left"][animation="overlay"] {
   color: #666
 }
 
+.tasksActions {
+  display: flex;
+  justify-content: end;
+  margin-right: 1rem;
+  margin-top: 1rem;
+}
+
+.deleteAction {
+  display: flex;
+  justify-content: end;
+  background-color: red;
+}
+
 
 
 /********************

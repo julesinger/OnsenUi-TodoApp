@@ -10,7 +10,7 @@ myApp.services = {
       let serialized_tasks = localStorage.getItem('tasks')
       tasks_content = JSON.parse(serialized_tasks)
       tasks_content.forEach(task => {
-        myApp.services.tasks.create(task)
+        myApp.services.tasks.create(task.data)
       });
     }
   }, 
@@ -86,7 +86,7 @@ myApp.services = {
       // Insert urgent tasks at the top and non urgent tasks at the bottom.
       var pendingList = document.querySelector('#pending-list');
       pendingList.insertBefore(taskItem, taskItem.data.urgent ? pendingList.firstChild : null);
-      fixtures.push(data)
+      fixtures.push(taskItem)
       let serialized_tasks = JSON.stringify(fixtures)
       localStorage.setItem("tasks", serialized_tasks)
     },
@@ -112,10 +112,10 @@ myApp.services = {
       taskItem.classList[data.highlight ? 'add' : 'remove']('highlight');
 
       // Store the new data within the element.
-      oldTask = taskItem.data
+      oldTask = taskItem
       taskItem.data = data;
       let indexToUpdate = fixtures.findIndex(task => oldTask === task )
-      fixtures[indexToUpdate] = taskItem.data
+      fixtures[indexToUpdate] = taskItem
       let serialized_tasks = JSON.stringify(fixtures)
       localStorage.setItem("tasks", serialized_tasks)
     },
@@ -130,12 +130,31 @@ myApp.services = {
         // Check if the category has no items and remove it in that case.
         myApp.services.categories.updateRemove(taskItem.data.category);
       });
-      let indexToRemove = fixtures.findIndex(task => taskItem.data === task )
+      let indexToRemove = fixtures.findIndex(task => taskItem === task )
       fixtures.splice(indexToRemove, 1)
+      let serialized_tasks = JSON.stringify(fixtures)
+      localStorage.setItem("tasks", serialized_tasks)
+    },
+
+    // Delete all the tasks
+    removeAll: function() {
+      for (let index = 0; index < fixtures.length; index++) {
+        task = fixtures[index]
+        task.removeEventListener('change', task.data.onCheckboxChange);
+        myApp.services.animators.remove(task, function() {
+          // Remove the item before updating the categories.
+          task.remove();
+          // Check if the category has no items and remove it in that case.
+          myApp.services.categories.updateRemove(task.data.category);
+        });
+      }
+
+      fixtures = []
       let serialized_tasks = JSON.stringify(fixtures)
       localStorage.setItem("tasks", serialized_tasks)
     }
   },
+
 
   /////////////////////
   // Category Service //
