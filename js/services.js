@@ -28,7 +28,7 @@ myApp.services = {
            '<ons-checkbox></ons-checkbox>' +
           '</label>' +
           '<div class="center">' +
-            data.title +
+            data.title + "   | Deadline : &nbsp <strong>" + data.date + "</strong>" + 
           '</div>' +
           '<div class="right">' +
             '<ons-icon style="color: grey; padding-left: 4px" icon="ion-ios-trash-outline, material:md-delete"></ons-icon>' +

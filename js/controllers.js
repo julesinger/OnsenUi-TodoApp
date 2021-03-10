@@ -42,20 +42,40 @@ myApp.controllers = {
   // New Task Page Controller //
   ////////////////////////////
   newTaskPage: function(page) {
+    var today = new Date();
+    var dd = today.getDate();
+    var mm = today.getMonth()+1; //January is 0!
+    var yyyy = today.getFullYear();
+    if(dd<10){
+      dd='0'+dd
+    } 
+    if(mm<10){
+      mm='0'+mm
+    } 
+    today = yyyy+'-'+mm+'-'+dd;
+    page.querySelector('#date-input').setAttribute("min", today)
     // Set button functionality to save a new task.
     Array.prototype.forEach.call(page.querySelectorAll('[component="button/save-task"]'), function(element) {
       element.onclick = function() {
         var newTitle = page.querySelector('#title-input').value;
-
-        if (newTitle) {
-          // If input title is not empty, create a new task.
+        var newDate = page.querySelector('#date-input').value
+        if(newDate === "" && newTitle === "") {
+          // Show alert if the input title is empty.
+          ons.notification.alert('You must provide a deadline and a title for the task.');
+        } else if (newDate === "") {
+          ons.notification.alert('You must provide a deadline for the task.');
+        } else if (newTitle === "") {
+          ons.notification.alert('You must provide a title for the task.');
+        } else if (newTitle && newDate) {
+          // If input title and input date is not empty, create a new task.
           myApp.services.tasks.create(
             {
               title: newTitle,
+              date: newDate,
               category: page.querySelector('#category-input').value,
               description: page.querySelector('#description-input').value,
               highlight: page.querySelector('#highlight-input').checked,
-              urgent: page.querySelector('#urgent-input').checked
+              urgent: page.querySelector('#urgent-input').checked,
             }
           );
 
@@ -64,9 +84,6 @@ myApp.controllers = {
           document.querySelector('#default-category-list ons-list-item').updateCategoryView();
           document.querySelector('#myNavigator').popPage();
 
-        } else {
-          // Show alert if the input title is empty.
-          ons.notification.alert('You must provide a task title.');
         }
       };
     });
