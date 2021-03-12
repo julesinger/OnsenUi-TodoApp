@@ -54,11 +54,22 @@ myApp.controllers = {
     } 
     today = yyyy+'-'+mm+'-'+dd;
     page.querySelector('#date-input').setAttribute("min", today)
+    var tasks = JSON.parse(localStorage.getItem("tasks"))
+    var category = []
+    tasks.forEach(task => {
+      if(!category.includes(task.data.category)){
+        category.push(task.data.category)
+        let item = document.createElement('option')
+        item.innerHTML = task.data.category
+        page.querySelector('#category-select').appendChild(item)
+      }
+    });
     // Set button functionality to save a new task.
     Array.prototype.forEach.call(page.querySelectorAll('[component="button/save-task"]'), function(element) {
       element.onclick = function() {
-        var newTitle = page.querySelector('#title-input').value;
+        var newTitle = page.querySelector('#title-input').value
         var newDate = page.querySelector('#date-input').value
+        var category = ""
         if(newDate === "" && newTitle === "") {
           // Show alert if the input title is empty.
           ons.notification.alert('You must provide a deadline and a title for the task.');
@@ -67,23 +78,34 @@ myApp.controllers = {
         } else if (newTitle === "") {
           ons.notification.alert('You must provide a title for the task.');
         } else if (newTitle && newDate) {
-          // If input title and input date is not empty, create a new task.
-          myApp.services.tasks.create(
-            {
-              title: newTitle,
-              date: newDate,
-              category: page.querySelector('#category-input').value,
-              description: page.querySelector('#description-input').value,
-              highlight: page.querySelector('#highlight-input').checked,
-              urgent: page.querySelector('#urgent-input').checked,
-            }
-          );
-
-          // Set selected category to 'All', refresh and pop page.
-          document.querySelector('#default-category-list ons-list-item ons-radio').checked = true;
-          document.querySelector('#default-category-list ons-list-item').updateCategoryView();
-          document.querySelector('#myNavigator').popPage();
-
+          // If input title and input date is not empty, verify the category.
+          if(page.querySelector('#category-input').value === "" && page.querySelector('#category-select').value === "Select an existant category"){
+            ons.notification.alert('You must provide a category or create one')
+          } else if(page.querySelector('#category-input').value !== "" && page.querySelector('#category-select').value !== "Select an existant category") {
+            ons.notification.alert('You must provide a category or create one but not the twice')
+          } else if(page.querySelector('#category-input').value !== "" && page.querySelector('#category-select').value === "Select an existant category"){
+            category = page.querySelector('#category-input').value
+          } else {
+            category = page.querySelector('#category-select').value
+          }
+          // If it's ok for the category create the task.
+          if(category !== "") {
+            myApp.services.tasks.create(
+              {
+                title: newTitle,
+                date: newDate,
+                category: category,
+                description: page.querySelector('#description-input').value,
+                highlight: page.querySelector('#highlight-input').checked,
+                urgent: page.querySelector('#urgent-input').checked,
+              }
+            );
+  
+            // Set selected category to 'All', refresh and pop page.
+            document.querySelector('#default-category-list ons-list-item ons-radio').checked = true;
+            document.querySelector('#default-category-list ons-list-item').updateCategoryView();
+            document.querySelector('#myNavigator').popPage();
+          }
         }
       };
     });
