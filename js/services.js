@@ -9,7 +9,8 @@ myApp.services = {
     if(localStorage.getItem('tasks') != null) {
       let serialized_tasks = localStorage.getItem('tasks')
       tasks_content = JSON.parse(serialized_tasks)
-      tasks_content.forEach(task => {
+      unique_tasks = new Set(tasks_content)
+      unique_tasks.forEach(task => {
         myApp.services.tasks.create(task.data)
       });
     }
@@ -21,7 +22,7 @@ myApp.services = {
   tasks: {
     // Creates a new task and attaches it to the pending task list.
     create: function(data) {
-      // Task item template.
+           // Task item template.
       var taskItem = ons.createElement(
         '<ons-list-item tappable category="' + myApp.services.categories.parseId(data.category)+ '">' +
           '<label class="left">' +
@@ -38,21 +39,28 @@ myApp.services = {
 
       // Store data within the element.
       taskItem.data = data;
+      listId = taskItem.data.state ? taskItem.data.state : "#pending-list"
+      taskItem.data.state = listId
       
       // Add 'completion' functionality when the checkbox changes.
       taskItem.data.onCheckboxChange = function(event) {
         myApp.services.animators.swipe(taskItem, function() {
-          var listid;
           if(taskItem.parentElement.id  === 'pending-list' && event.target.checked){
             listId = '#inprogress-list'
             event.target.checked = !event.target.checked
           }else if(taskItem.parentElement.id === 'inprogress-list' && event.target.checked){
             listId = '#completed-list'
           } else {
-            listID = '#pending-list'
+            listId = '#pending-list'
           }
           document.querySelector(listId).appendChild(taskItem);
+          let indexToUpdate = fixtures.findIndex(task => taskItem === task)
+          taskItem.data.state = listId
+          fixtures[indexToUpdate] = taskItem
+          let serialized_tasks = JSON.stringify(fixtures)
+          localStorage.setItem("tasks", serialized_tasks)
         });
+      
       };
 
       taskItem.addEventListener('change', taskItem.data.onCheckboxChange);
@@ -82,13 +90,13 @@ myApp.services = {
       if (taskItem.data.highlight) {
         taskItem.classList.add('highlight');
       }
-
       // Insert urgent tasks at the top and non urgent tasks at the bottom.
-      var pendingList = document.querySelector('#pending-list');
-      pendingList.insertBefore(taskItem, taskItem.data.urgent ? pendingList.firstChild : null);
+      let stateList = document.querySelector(taskItem.data.state);
+      stateList.insertBefore(taskItem, taskItem.data.urgent ? stateList.firstChild : null);
       fixtures.push(taskItem)
       let serialized_tasks = JSON.stringify(fixtures)
       localStorage.setItem("tasks", serialized_tasks)
+
     },
 
     // Modifies the inner data and current view of an existing task.
