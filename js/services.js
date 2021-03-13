@@ -50,6 +50,8 @@ myApp.services = {
             event.target.checked = !event.target.checked
           }else if(taskItem.parentElement.id === 'inprogress-list' && event.target.checked){
             listId = '#completed-list'
+          } else if(taskItem.parentElement.id === 'completed-list'){
+            myApp.services.tasks.remove(taskItem);
           } else {
             listId = '#pending-list'
           }
@@ -145,19 +147,22 @@ myApp.services = {
     },
 
     // Delete all the tasks
-    removeAll: function() {
+    removeList: function(list) {
+      let filter_fixtures = fixtures.filter(task => task.data.state !== list)
       for (let index = 0; index < fixtures.length; index++) {
         task = fixtures[index]
-        task.removeEventListener('change', task.data.onCheckboxChange);
-        myApp.services.animators.remove(task, function() {
-          // Remove the item before updating the categories.
-          task.remove();
-          // Check if the category has no items and remove it in that case.
-          myApp.services.categories.updateRemove(task.data.category);
-        });
+        if(task.data.state === list) {
+          task.removeEventListener('change', task.data.onCheckboxChange);
+          myApp.services.animators.remove(task, function() {
+            // Remove the item before updating the categories.
+            task.remove();
+            // Check if the category has no items and remove it in that case.
+            myApp.services.categories.updateRemove(task.data.category);
+          });
+        }
       }
 
-      fixtures = []
+      fixtures = filter_fixtures
       let serialized_tasks = JSON.stringify(fixtures)
       localStorage.setItem("tasks", serialized_tasks)
     }
