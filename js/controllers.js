@@ -53,7 +53,7 @@ myApp.controllers = {
       mm='0'+mm
     } 
     today = yyyy+'-'+mm+'-'+dd;
-    page.querySelector('#date-input').setAttribute("min", today)
+   // page.querySelector('#date-input').setAttribute("min", today)
     var tasks = JSON.parse(localStorage.getItem("tasks"))
     var category = []
     tasks.forEach(task => {

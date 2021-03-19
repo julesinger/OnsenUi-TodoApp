@@ -146,11 +146,12 @@ myApp.services = {
       localStorage.setItem("tasks", serialized_tasks)
     },
 
-    // Delete all the tasks
+    // Delete all the tasks from the current list
     removeList: function(list) {
       let filter_fixtures = fixtures.filter(task => task.data.state !== list)
       for (let index = 0; index < fixtures.length; index++) {
         task = fixtures[index]
+        console.log(task)
         if(task.data.state === list) {
           task.removeEventListener('change', task.data.onCheckboxChange);
           myApp.services.animators.remove(task, function() {
@@ -161,7 +162,28 @@ myApp.services = {
           });
         }
       }
+      fixtures = filter_fixtures
+      let serialized_tasks = JSON.stringify(fixtures)
+      localStorage.setItem("tasks", serialized_tasks)
+    },
 
+    // delete the deprecated tasks from the current list
+    removeDeprecatedList: function(list) {
+      let now = new Date()
+      let filter_fixtures = fixtures.filter(task => task.data.state !== list || (task.data.state === list && new Date(task.data.date) >= now))
+      for (let index = 0; index < fixtures.length; index++) {
+        task = fixtures[index]
+        let taskDate = new Date(task.data.date)
+        if(task.data.state === list && taskDate < now) {
+          task.removeEventListener('change', task.data.onCheckboxChange);
+          myApp.services.animators.remove(task, function() {
+            // Remove the item before updating the categories.
+            task.remove();
+            // Check if the category has no items and remove it in that case.
+            myApp.services.categories.updateRemove(task.data.category);
+          });
+        }
+      }
       fixtures = filter_fixtures
       let serialized_tasks = JSON.stringify(fixtures)
       localStorage.setItem("tasks", serialized_tasks)
@@ -187,8 +209,12 @@ myApp.services = {
           '<label class="center" for="radio-' + categoryId + '">' +
             (categoryLabel || 'No category') +
           '</label>' +
+          `<img id="del" src="/lib/onsen/img/delete.svg" style="width:1rem; margin-right:1rem;"> </img>` +
         '</ons-list-item>'
+
       );
+
+      categoryItem.querySelector('#del').addEventListener('click', () => myApp.services.categories.removeTasksCategorie(categoryLabel))
 
       // Adds filtering functionality to this category item.
       myApp.services.categories.bindOnCheckboxChange(categoryItem);
@@ -226,6 +252,25 @@ myApp.services = {
         categoryItem.removeEventListener('change', categoryItem.updateCategoryView);
         categoryItem.remove();
       }
+    },
+
+    removeTasksCategorie: function(categorie) {
+      let filter_fixtures = fixtures.filter(task => task.data.category !== categorie)
+      for (let index = 0; index < fixtures.length; index++) {
+        task = fixtures[index]
+        if(task.data.category === categorie) {
+          task.removeEventListener('change', task.data.onCheckboxChange);
+          myApp.services.animators.remove(task, function() {
+            // Remove the item before updating the categories.
+            task.remove();
+            // Check if the category has no items and remove it in that case.
+            myApp.services.categories.updateRemove(task.data.category);
+          });
+        }
+      }
+      fixtures = filter_fixtures
+      let serialized_tasks = JSON.stringify(fixtures)
+      localStorage.setItem("tasks", serialized_tasks)
     },
 
     // Adds filtering functionality to a category item.
