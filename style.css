@@ -28,16 +28,16 @@ ons-splitter-side[side="left"][animation="overlay"] {
 
 .tasksActions {
   display: flex;
+  justify-content: flex-end;
+  gap : 1rem;
   margin-right: 1rem;
   margin-top: 1rem;
 }
 
 .deleteAction {
   display: block;
-  margin-left: auto;
   background-color: red;
 }
-
 
 
 /********************
