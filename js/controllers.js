@@ -54,6 +54,7 @@ myApp.controllers = {
     } 
     today = yyyy+'-'+mm+'-'+dd;
    // page.querySelector('#date-input').setAttribute("min", today)
+   if(localStorage.getItem("tasks") !== null){
     var tasks = JSON.parse(localStorage.getItem("tasks"))
     var category = []
     tasks.forEach(task => {
@@ -64,6 +65,7 @@ myApp.controllers = {
         page.querySelector('#category-select').appendChild(item)
       }
     });
+  }
     // Set button functionality to save a new task.
     Array.prototype.forEach.call(page.querySelectorAll('[component="button/save-task"]'), function(element) {
       element.onclick = function() {

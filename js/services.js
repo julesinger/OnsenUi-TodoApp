@@ -5,13 +5,13 @@ let fixtures = []
 
 myApp.services = {
 
-  localLoad: function() {
+  localLoad: function(save = true) {
     if(localStorage.getItem('tasks') != null) {
       let serialized_tasks = localStorage.getItem('tasks')
       tasks_content = JSON.parse(serialized_tasks)
       unique_tasks = new Set(tasks_content)
       unique_tasks.forEach(task => {
-        myApp.services.tasks.create(task.data)
+        myApp.services.tasks.create(task.data, save)
       });
     }
   }, 
@@ -21,7 +21,7 @@ myApp.services = {
   /////////////////
   tasks: {
     // Creates a new task and attaches it to the pending task list.
-    create: function(data) {
+    create: function(data, save = true) {
            // Task item template.
       var taskItem = ons.createElement(
         '<ons-list-item tappable category="' + myApp.services.categories.parseId(data.category)+ '">' +
@@ -95,10 +95,11 @@ myApp.services = {
       // Insert urgent tasks at the top and non urgent tasks at the bottom.
       let stateList = document.querySelector(taskItem.data.state);
       stateList.insertBefore(taskItem, taskItem.data.urgent ? stateList.firstChild : null);
-      fixtures.push(taskItem)
-      let serialized_tasks = JSON.stringify(fixtures)
-      localStorage.setItem("tasks", serialized_tasks)
-
+      if(save){
+        fixtures.push(taskItem)
+        let serialized_tasks = JSON.stringify(fixtures)
+        localStorage.setItem("tasks", serialized_tasks)
+      }
     },
 
     // Modifies the inner data and current view of an existing task.
@@ -128,6 +129,19 @@ myApp.services = {
       fixtures[indexToUpdate] = taskItem
       let serialized_tasks = JSON.stringify(fixtures)
       localStorage.setItem("tasks", serialized_tasks)
+    },
+
+    sortAscending: function(list) {
+      document.querySelector(list).innerHTML = ""
+      let filter_fixtures = fixtures.filter(task => task.data.state === list)
+      fixtures = fixtures.filter(task => task.data.state !== list)
+      console.log(filter_fixtures)
+      filter_fixtures.sort((a, b) => (a.data.title<b.data.title?-1:(a.data.title>b.data.title?1:0)))
+      console.log(filter_fixtures)
+      fixtures = fixtures.concat(filter_fixtures)
+      localStorage.setItem("tasks", JSON.stringify(fixtures))
+      myApp.services.localLoad(false);
+      console.log(fixtures)
     },
 
     // Deletes a task item and its listeners.
