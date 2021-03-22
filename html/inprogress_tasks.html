@@ -2,7 +2,10 @@
     <ons-list id="inprogress-list">
     </ons-list>
     <div class="tasksActions">
-      <ons-button onclick="myApp.services.tasks.removeList('#inprogress-list')" class="deleteAction" background="#85c1e9">Delete all</ons-button>
+      <ons-button onclick="myApp.services.tasks.sortAscending('#inprogress-list')" class="sort" background="#85c1e9">Sort ascending</ons-button>
+      <ons-button onclick="myApp.services.tasks.sortDescending('#inprogress-list')" class="sort" background="#85c1e9">Sort descending</ons-button>
+      <ons-button onclick="myApp.services.tasks.removeDeprecatedList('#inprogress-list')" class="deleteAction" background="#85c1e9">Delete deprecated tasks</ons-button>
+      <ons-button onclick="myApp.services.tasks.removeList('#inprogress-list')" class="deleteAction" background="#85c1e9">Delete all</ons-button> 
     </div>
   </ons-page>
   
