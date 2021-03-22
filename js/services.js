@@ -165,7 +165,6 @@ myApp.services = {
       let filter_fixtures = fixtures.filter(task => task.data.state !== list)
       for (let index = 0; index < fixtures.length; index++) {
         task = fixtures[index]
-        console.log(task)
         if(task.data.state === list) {
           task.removeEventListener('change', task.data.onCheckboxChange);
           myApp.services.animators.remove(task, function() {
@@ -189,11 +188,8 @@ myApp.services = {
         task = fixtures[index]
         let taskDate = new Date(task.data.date)
         if(task.data.state === list && taskDate < now) {
-          task.removeEventListener('change', task.data.onCheckboxChange);
+          //task.removeEventListener('change', task.data.onCheckboxChange);
           myApp.services.animators.remove(task, function() {
-            // Remove the item before updating the categories.
-            task.remove();
-            // Check if the category has no items and remove it in that case.
             myApp.services.categories.updateRemove(task.data.category);
           });
         }
@@ -275,8 +271,6 @@ myApp.services = {
         if(task.data.category === categorie) {
           task.removeEventListener('change', task.data.onCheckboxChange);
           myApp.services.animators.remove(task, function() {
-            // Remove the item before updating the categories.
-            task.remove();
             // Check if the category has no items and remove it in that case.
             myApp.services.categories.updateRemove(task.data.category);
           });
