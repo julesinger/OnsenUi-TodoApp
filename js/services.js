@@ -135,14 +135,30 @@ myApp.services = {
       document.querySelector(list).innerHTML = ""
       let filter_fixtures = fixtures.filter(task => task.data.state === list)
       fixtures = fixtures.filter(task => task.data.state !== list)
-      console.log(filter_fixtures)
-      filter_fixtures.sort((a, b) => (a.data.title<b.data.title?-1:(a.data.title>b.data.title?1:0)))
-      console.log(filter_fixtures)
+      filter_fixtures.sort(function compare(a, b) {
+        a = a.data.title.toLowerCase() 
+        b = b.data.title.toLowerCase()
+        return (a<b?-1:(a>b?1:0));  
+      })
       fixtures = fixtures.concat(filter_fixtures)
       localStorage.setItem("tasks", JSON.stringify(fixtures))
       myApp.services.localLoad(false);
-      console.log(fixtures)
     },
+
+    sortDescending: function(list) {
+      document.querySelector(list).innerHTML = ""
+      let filter_fixtures = fixtures.filter(task => task.data.state === list)
+      fixtures = fixtures.filter(task => task.data.state !== list)
+      filter_fixtures.sort(function compare(a, b) {
+        a = a.data.title.toLowerCase() 
+        b = b.data.title.toLowerCase()
+        return (a<b?1:(a>b?-1:0));  
+      })
+      fixtures = fixtures.concat(filter_fixtures)
+      localStorage.setItem("tasks", JSON.stringify(fixtures))
+      myApp.services.localLoad(false);
+    },
+
 
     // Deletes a task item and its listeners.
     remove: function(taskItem) {
